@@ -6,26 +6,26 @@ import java.util.*;
 public class Matrix {
     int cols;
     int rows;
-    int[][] data;
+    double[][] data;
 
     public Matrix(int rows, int cols) {
         this.cols = cols;
         this.rows = rows;
-        data = new int[cols][rows];
+        data = new double[cols][rows];
     }
 
-    public Matrix(int[][] data) {
+    public Matrix(double[][] data) {
         this.cols = data[0].length;
         this.rows = data.length;
         this.data = data;
     }
 
-    public int[] getRow(int i) {
+    public double[] getRow(int i) {
         return data[i];
     }
 
-    public int[] getColumn(int j) {
-        int[] column = new int[cols];
+    public double[] getColumn(int j) {
+        double[] column = new double[cols];
         for(int i = 0; i < cols; i++) {
             column[i] = data[i][j];
         }
@@ -41,9 +41,7 @@ public class Matrix {
     }
 
     public void add(Matrix other) {
-        if(rows != other.rows && cols != other.cols) {
-            throw new IllegalArgumentException("In order for matrices to add, they must be the same size");
-        }
+        sameSizeCheck(other);
         for(int i = 0; i < cols; i++) {
             for(int j = 0; j < rows; j++) {
                 data[i][j] += other.data[i][j];
@@ -51,11 +49,35 @@ public class Matrix {
         }
     }
 
+    public void subtract(Matrix other) {
+        sameSizeCheck(other);
+        for(int i = 0; i < cols; i++) {
+            for(int j = 0; j < rows; j++) {
+                data[i][j] -= other.data[i][j];
+            }
+        }
+    }
+
+    public Matrix multiply(Matrix other) {
+        if(cols != other.rows) {
+            throw new IllegalArgumentException("Incorrect matrix sizes");
+        }
+        double[][] data = new double[rows][other.cols];
+        // TODO: actually mutiply matrix
+        return new Matrix(data);
+    }
+
     public String toString() {
         String result = "";
-        for(int[] column : data) {
+        for(double[] column : data) {
             result = result + Arrays.toString(column) + "\n";
         }
         return result;
+    }
+
+    private void sameSizeCheck(Matrix other) {
+        if (rows != other.rows || cols != other.cols) {
+            throw new IllegalArgumentException("Matrices must be the same size");
+        }
     }
 }
