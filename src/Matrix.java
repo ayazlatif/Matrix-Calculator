@@ -4,14 +4,12 @@ import java.util.*;
  * Created by AyazLatif on 3/12/16.
  */
 public class Matrix {
-    int cols;
-    int rows;
-    double[][] data;
+    private int cols;
+    private int rows;
+    private double[][] data;
 
     public Matrix(int rows, int cols) {
-        this.cols = cols;
-        this.rows = rows;
-        data = new double[cols][rows];
+        this(new double[cols][rows]);
     }
 
     public Matrix(double[][] data) {
@@ -25,8 +23,8 @@ public class Matrix {
     }
 
     public double[] getColumn(int j) {
-        double[] column = new double[cols];
-        for(int i = 0; i < cols; i++) {
+        double[] column = new double[rows];
+        for(int i = 0; i < rows; i++) {
             column[i] = data[i][j];
         }
         return column;
@@ -40,19 +38,17 @@ public class Matrix {
     	if(!isSquare()) {
     		throw new IllegalArgumentException("Matrix must be a square");
     	}
-        return determinant(this.rows, data);
+        return determinant(data);
     }
     
-    private double determinant(int n, double[][] minor) {
-    	//System.out.println("At start of method\n" + toString(minor));
+    private double determinant(double[][] minor) {
+    	int n = minor.length;
     	if(n == 1) {
     		return minor[0][0];
     	} else if (n == 2) {
-    		//System.out.println("det with n = 2 is :" + (minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0]));
     		return minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0];
     	} else {
     		double determinant = 0;
-    		//System.out.println("Before for loop\n" + toString(minor));
     		for(int i = 0; i < n; i++) {
     			double[][] nextMinor = new double[n - 1][n - 1];
     			int index = 0;
@@ -62,9 +58,8 @@ public class Matrix {
     					index++;
     				}
     			}
-    			//System.out.println("Note: data[i][0] " + minor[i][0] * Math.pow(-1, i) + " This is the " + i + " minor\n" + toString(nextMinor));
     			determinant = determinant + ((minor[i][0] * Math.pow(-1, i)) *
-    					determinant(n - 1, nextMinor));
+    					determinant(nextMinor));
     		}
     		return determinant;
     	}
@@ -102,17 +97,27 @@ public class Matrix {
         if(cols != other.rows) {
             throw new IllegalArgumentException("Incorrect matrix sizes");
         }
-        double[][] data = new double[rows][other.cols];
-        // TODO: actually mutiply matrix
-        return new Matrix(data);
+        double[][] multipliedMatrix = new double[rows][other.cols];
+        for(int i = 0; i < rows; i++) {
+        	for(int j = 0; j < other.cols; j++) {
+        		multipliedMatrix[i][j] = multiply(other, i, j);
+        	}
+        }
+        return new Matrix(multipliedMatrix);
+    }
+    
+    private double multiply(Matrix other, int i, int j) {
+    	double[] row = getRow(i);
+    	double[] column = other.getColumn(j);
+    	double answer = 0;
+    	for(int k = 0; k < row.length; k++) {
+    		answer = answer + row[k] * column[k];
+    	}
+    	return answer;
     }
 
     public String toString() {
-        String result = "";
-        for(double[] column : data) {
-            result = result + Arrays.toString(column) + "\n";
-        }
-        return result;
+        return toString(data);
     }
     
     public String toString(double[][] data) {
