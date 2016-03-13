@@ -36,8 +36,48 @@ public class Matrix {
         return rows == cols;
     }
 
-    public int determinant() {
-        return 0;
+    public double determinant() {
+    	if(!isSquare()) {
+    		throw new IllegalArgumentException("Matrix must be a square");
+    	}
+        return determinant(this.rows, data);
+    }
+    
+    private double determinant(int n, double[][] minor) {
+    	//System.out.println("At start of method\n" + toString(minor));
+    	if(n == 1) {
+    		return minor[0][0];
+    	} else if (n == 2) {
+    		//System.out.println("det with n = 2 is :" + (minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0]));
+    		return minor[0][0] * minor[1][1] - minor[0][1] * minor[1][0];
+    	} else {
+    		double determinant = 0;
+    		//System.out.println("Before for loop\n" + toString(minor));
+    		for(int i = 0; i < n; i++) {
+    			double[][] nextMinor = new double[n - 1][n - 1];
+    			int index = 0;
+    			for(int j = 0; j < n; j++) {
+    				if(j != i) {
+    					nextMinor[index] = getSubRow(j, n - 1, minor);
+    					index++;
+    				}
+    			}
+    			//System.out.println("Note: data[i][0] " + minor[i][0] * Math.pow(-1, i) + " This is the " + i + " minor\n" + toString(nextMinor));
+    			determinant = determinant + ((minor[i][0] * Math.pow(-1, i)) *
+    					determinant(n - 1, nextMinor));
+    		}
+    		return determinant;
+    	}
+    }
+    
+    private double[] getSubRow(int j, int n, double[][] minor) {
+    	double[] subRow = new double[n];
+    	int index = 0;
+    	for(int i = 1; i < minor.length; i++) {
+    			subRow[index] = minor[j][i];
+    			index++;
+    	}
+    	return subRow;
     }
 
     public void add(Matrix other) {
@@ -68,6 +108,14 @@ public class Matrix {
     }
 
     public String toString() {
+        String result = "";
+        for(double[] column : data) {
+            result = result + Arrays.toString(column) + "\n";
+        }
+        return result;
+    }
+    
+    public String toString(double[][] data) {
         String result = "";
         for(double[] column : data) {
             result = result + Arrays.toString(column) + "\n";
